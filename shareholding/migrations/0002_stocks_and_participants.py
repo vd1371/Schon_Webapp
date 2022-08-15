@@ -6,7 +6,7 @@ import pandas as pd
 
 from ..models import Stock
 from ..models import Participant
-from ..models import Shareholding
+from ..models import ShareholdingInfo
 
 def populate(*ags, **kwargs):
 

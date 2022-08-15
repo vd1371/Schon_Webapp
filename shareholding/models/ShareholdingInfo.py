@@ -5,7 +5,7 @@ from .Participant import Participant
 from .Stock import Stock
 
 # Create your models here.
-class Shareholding(models.Model):
+class ShareholdingInfo(models.Model):
     
     participant = models.ForeignKey(Participant, on_delete= models.CASCADE, blank=True, null=True)
     stock = models.ForeignKey(Stock, on_delete= models.CASCADE)
@@ -16,4 +16,3 @@ class Shareholding(models.Model):
                                                 MaxValueValidator(100.0)],
                                     null = True)
     date = models.DateTimeField()
-
