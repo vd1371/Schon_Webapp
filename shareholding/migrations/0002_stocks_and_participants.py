@@ -12,40 +12,50 @@ def populate(*ags, **kwargs):
 
     base_dir = os.path.join('shareholding', 'migrations')
 
-    stock_df = pd.read_csv(os.path.join(base_dir, 'ListofStocks.csv'),
-                            index_col = 0,
-                            dtype = str)
+    direc = os.path.join(base_dir, 'ListofStocks.csv')
+    stock_df = pd.read_csv(direc, index_col = 0, dtype = str)
     for id, name in zip(stock_df['stock_id'], stock_df['stock_name']):
         Stock.objects.get_or_create(id = id, name = name)
 
-    participant_df = pd.read_csv(os.path.join(base_dir,
-                                            'ListofParticipants.csv'),
-                                dtype = str)
+    direc = os.path.join(base_dir,'ListofParticipants.csv')
+    participant_df = pd.read_csv(direc, dtype = str)
     for id, name in zip(participant_df['id'], participant_df['name']):
         Participant.objects.get_or_create(id = id, name = name)
 
     for folder in os.listdir(os.path.join(base_dir, "Database"))[:3]:
-        for file in os.listdir(os.path.join(base_dir, "Database", folder))[:10]:
-            df = pd.read_csv(
-                os.path.join(base_dir, "Database", folder, file),
-                dtype = str)
+        all_files = sorted (os.listdir(os.path.join(base_dir, "Database", folder)))[:10]
 
-            df['Shareholding'] = df['Shareholding'].astype('int64')
-            df['percentage'] = df['percentage'].astype(float)
-            df['Date'] = pd.to_datetime(df['Date'], utc=True)
-            df['Date'] = df['Date'].dt.tz_convert(tz = 'Asia/Hong_Kong')
+        for file, yesterday_file in zip(all_files[:-1], all_files[1:]):
 
-            for i, row in df.iterrows():
-                Shareholding.objects.get_or_create(
-                    participant = Participant.objects.get_or_create(id = row['Participant ID'])[0] ,
-                    name = row['Name'],
-                    address = row['Address'],
-                    shareholding = row['Shareholding'],
-                    date = row['Date'],
-                    stock = Stock.objects.get_or_create(id = row['Stockcode'])[0] 
+            file_dir = os.path.join(base_dir, "Database", folder, file)
+            df = _open_csv_files(file_dir)
+
+            yesterday_file_dir = os.path.join(base_dir, "Database", folder, yesterday_file)
+            yesterday_df = _open_csv_files(yesterday_file_dir)
+
+            for participant_id in set(
+                list(df['Participant ID'].values) + list(yesterday_df['Participant ID'].values)
+            ):
+
+                diff, diff_percentage = _get_diff_values(
+                    df,
+                    yesterday_df,
+                    participant_id
                 )
 
+                row_dict = df[df['Participant ID'] == participant_id].to_dict('records')[0]
 
+                ShareholdingInfo.objects.get_or_create(
+                    participant = Participant.objects.get_or_create(id = row_dict['Participant ID'])[0] ,
+                    name = row_dict['Name'],
+                    address = row_dict['Address'],
+                    percentage = row_dict['percentage'],
+                    shareholding = row_dict['Shareholding'],
+                    date = row_dict['Date'],
+                    stock = Stock.objects.get_or_create(id = row_dict['Stockcode'])[0],
+                    absolute_difference = diff,
+                    difference_percentage = diff_percentage,
+                )
 
 class Migration(migrations.Migration):
 
@@ -56,3 +66,52 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(populate,)
     ]
+
+############################################################################
+######### Functions for helping the populate function ######################
+
+def _open_csv_files(file_dir):
+
+    df = pd.read_csv(file_dir, dtype = str)
+
+    df['Shareholding'] = df['Shareholding'].astype('int64')
+    df['percentage'] = df['percentage'].astype(float)
+    df['Date'] = pd.to_datetime(df['Date'])
+
+    map_of_nan_ids = df[df['Participant ID'].isna()].index
+
+    df.loc[map_of_nan_ids, 'Participant ID'] = \
+        df.loc[map_of_nan_ids, 'Name'].map(_generate_id)
+
+    return df
+
+def _generate_id(name):
+    name = name.split(" ")
+    id = ""
+    for word in name:
+        id += word[:2]
+    return id
+
+
+def _get_diff_values(today_df, yesterday_df, participant_id):
+
+    today_shares = today_df[(today_df['Participant ID'] == participant_id)]['Shareholding'].values
+    yesterday_shares = yesterday_df[(yesterday_df['Participant ID'] == participant_id)]['Shareholding'].values
+
+    if len(today_shares) == 1 and len(yesterday_shares) == 1:
+        diff = today_shares[0] - yesterday_shares[0]
+        diff_percentage = (today_shares[0] - yesterday_shares[0])/yesterday_shares[0]
+
+    elif len(today_shares) == 0 and len(yesterday_shares) == 1:
+        diff = -yesterday_shares[0]
+        diff_percentage = -100
+
+    elif len(today_shares) == 1 and len(yesterday_shares) == 0:
+        diff = today_shares[0]
+        diff_percentage = 100
+
+    else:
+        print (yesterday_shares, today_shares, participant_id)
+        raise ValueError ("Something happened")
+    
+    return diff, diff_percentage

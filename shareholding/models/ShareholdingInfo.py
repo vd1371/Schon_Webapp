@@ -14,5 +14,10 @@ class ShareholdingInfo(models.Model):
     shareholding = models.PositiveIntegerField(null = True)
     percentage = models.FloatField(validators=[MinValueValidator(0.0),
                                                 MaxValueValidator(100.0)],
-                                    null = True)
+                                                null = True)
+    absolute_difference = models.IntegerField(null= True, default= None)
+    difference_percentage = models.FloatField(validators=[MinValueValidator(0.0),
+                                                MaxValueValidator(100.0)],
+                                                null = True,
+                                                default= None)
     date = models.DateTimeField()
