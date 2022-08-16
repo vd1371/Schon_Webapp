@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{% static 'js/table-sortable-master/dist/table-sortable.css' %}" />
+
+	<script src="{% static 'js/shareholding.js' %}"></script>
+	<script src="{% static 'js/trend_tab.js' %}"></script>
+	<script src="{% static 'js/transaction_tab.js' %}"></script>
+
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"></link>
+	<script src="https://code.jquery.com/jquery-3.5.1.js" ></script>
+	<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+	<script src='https://cdn.plot.ly/plotly-2.14.0.min.js'></script>
+	
+	<!-- <script src="jquery.slim.min.js"></script> -->
+	<title>Schonfeld Test</title>
+</head>
+<body>
+	<div class = 'container'>
+		{% block body_block %}
+		{% endblock %}
+	</div>
+</body>
+</html>

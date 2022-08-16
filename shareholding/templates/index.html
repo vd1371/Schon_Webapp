@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block body_block  %}
+	<div class = 'jumbotron'>
+		<h1>Schonfeld Test</h1>
+		<h2>The UI is not designed properly. It's just for the Schonfeld test</h2>
+		<br>
+		<br>
+
+		<ul class="nav nav-tabs">
+			<li class = 'active' id = "tasks_tab"><a data-toggle="tab" onclick="switchframe('tasks')" href="#tasks">Tasks</a></li>
+			<li id = "trend_tab"><a data-toggle="tab" onclick="switchframe('trend')" href="#trend">Trend Plot</a></li>
+			<li id = "transaction_tab"><a data-toggle="tab" onclick="switchframe('transaction')" href="#transaction">Transaction Finder</a></li>
+		</ul>
+
+		<br>
+		<br>
+
+		<div id = "app_body" style = "display: block;"></div>
+
+		<div id = "tasks_body">
+			<p><strong><span>Tab 1 - Trend plot</span></strong></p>
+			<p><span>Input:</span></p>
+			<ul type="disc">
+				<li vertical-align: middle;><span >Stock code</span></li>
+				<li vertical-align: middle;><span >Start date</span></li>
+				<li vertical-align: middle;><span >End date</span></li>
+			</ul>
+			<p><span>&nbsp;</span></p>
+			<p><span>Output</span></p>
+			<ul type="disc">
+				<li vertical-align: middle;><span >Plot the &quot;Shareholding&quot; of the top 10 participant as of the end date</span></li>
+				<li vertical-align: middle;><span >Display the data in a table with filter</span></li>
+			</ul>
+			<p><span>&nbsp;</span></p>
+			<p><strong><span>Tab 2 - Transaction finder</span></strong></p>
+			<p><span>Input:</span></p>
+			<ul type="disc">
+				<li vertical-align: middle;><span >Stock code</span></li>
+				<li vertical-align: middle;><span >Start date</span></li>
+				<li vertical-align: middle;><span >End date</span></li>
+				<li vertical-align: middle;><span >Threshold % of total number of shares</span></li>
+			</ul>
+			<p>
+				<span style="font-size:15px">
+					There could be transaction between two participants and we would like to detect them.
+					The % threshold input the minimum % of the shares exchanged, e.g. if it&apos;s set to 1%,
+					please find the participants who increases or decreases &gt;1% of
+					the shares in a day, and list out the participant ID/names who possibly
+					exchange their shares on which day.
+				</span>
+			</p>
+		</div>
+		
+	</div>
+
+	
+{% endblock %}

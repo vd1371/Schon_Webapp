@@ -7,8 +7,9 @@ app_name = 'shareholding'
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
 
-router.register(r'shareholdinginfo', views.ShareholdingInfoViewSet, basename='shareholdinginfo')
+router.register(r"get_stock_info", views.ShareholdingInfoViewSet, basename='shareholdinginfo')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
+    path('', views.ShareholdingInfoIndexView.as_view(), name = 'index')
 ]
