@@ -18,5 +18,5 @@ from django.urls import path, include, re_path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('shareholding.urls', namespace = 'shareholdinginfo')),
+    path('shareholdinginfo/', include('shareholding.urls', namespace = 'shareholdinginfo')),
 ]
