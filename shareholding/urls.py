@@ -8,6 +8,7 @@ app_name = 'shareholding'
 router = DefaultRouter()
 
 router.register(r"get_stock_info", views.ShareholdingInfoViewSet, basename='shareholdinginfo')
+router.register(r"get_transaction_info", views.TransactionInfoViewSet, basename='transactioninfo')
 
 urlpatterns = [
     path('api/', include(router.urls)),

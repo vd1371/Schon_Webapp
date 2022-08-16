@@ -1,3 +1,3 @@
 from .ShareholdingInfoViewSet import ShareholdingInfoViewSet
 from .ShareholdingInfoIndexView import ShareholdingInfoIndexView
-from .TransactionsViewSet import TransactionsViewSet
+from .TransactionInfoViewSet import TransactionInfoViewSet

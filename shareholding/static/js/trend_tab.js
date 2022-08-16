@@ -5,18 +5,18 @@ function trend_tab (){
     document.getElementById("app_body").style.display = "inline";
     document.getElementById("app_body").innerHTML =
         `
-        <form onsubmit='send_request()' class='form-inline' id='trend_form'>
+        <form onsubmit='send_request_for_trend_tab()' class='form-inline' id='trend_form'>
         
-        <label for='stock_id'>Stock ID:</label>
-        <input type='text' id='stock_id' placeholder='e.g., 00693'>
-        
-        <label for='start_date'>Start Date:</label>
-        <input type='text' id='start_date' placeholder='e.g., 2022-01-03'>
-        
-        <label for='end_date'>End Date:</label>
-        <input type='text' id='end_date' placeholder='e.g., 2022-01-10'>
+            <label for='stock_id'>Stock ID:</label>
+            <input type='text' id='stock_id' placeholder='e.g., 00693'>
+            
+            <label for='start_date'>Start Date:</label>
+            <input type='text' id='start_date' placeholder='e.g., 2022-01-03'>
+            
+            <label for='end_date'>End Date:</label>
+            <input type='text' id='end_date' placeholder='e.g., 2022-01-10'>
 
-        <button type='submit' id = 'trend_submit_btn'>Submit</button>
+            <button type='submit' id = 'trend_submit_btn'>Submit</button>
         </form>
         
         <br></br>
@@ -27,11 +27,14 @@ function trend_tab (){
         <br></br>
         <hr style="height:2px;border-width:0;color:gray;background-color:black">
         <h3>Results</h3>
-        <table id="table-sortable" class="display" width="100%"></table>
+        <div>
+            <table id="table-sortable" class="display"></table>
+        </div>
+        
         `
 }
 
-async function send_request () {
+async function send_request_for_trend_tab () {
     const form = document.getElementById("trend_form");
     var stock_id = form.elements['stock_id'];
     var end_date = form.elements['end_date'];
@@ -53,35 +56,43 @@ async function send_request () {
 
     fetch(url)
         .then((res) => res.json())
-        .then((responseData) => submit_handler(responseData)
+        .then((responseData) => submit_handler_trend(responseData)
       )
     ;
 
 }
 
-function submit_handler(data){
-    add_table(data);
+function submit_handler_trend(data){
+    add_table_trend(data);
     plot_top10(data);
 }
 
-function add_table(data){
+function add_table_trend(data){
 
-    console.log()
-
-    var column_names = Object.keys(data[0])
-    var columns = []
-    for (var i in column_names){
-        columns.push ({ title : column_names[i] })
-    }
+    var columns = [
+        {title : "No."},
+        {title : "Name"},
+        {title : "Address"},
+        {title : "Shares"},
+        {title : "%"},
+        {title : "Abs Diff"},
+        {title : "% Diff"},
+        {title : "Date"},
+        {title : "Participant ID"},
+        {title : "Stock code"},
+    ]
 
     var result = [];
     for(var row in data)
         result.push(Object.values(data[row]))
 
+    document.getElementById("table-sortable").innerHTML = ""
+
     $(document).ready(function () {
         $('#table-sortable').DataTable({
             data: result,
             columns: columns,
+            "bDestroy": true
         });
     });
 

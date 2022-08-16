@@ -23,7 +23,8 @@ def populate(*ags, **kwargs):
         Participant.objects.get_or_create(id = id, name = name)
 
     for folder in os.listdir(os.path.join(base_dir, "Database"))[:3]:
-        all_files = sorted (os.listdir(os.path.join(base_dir, "Database", folder)))[:10]
+        print (folder)
+        all_files = sorted (os.listdir(os.path.join(base_dir, "Database", folder)))[:]
 
         for file, yesterday_file in zip(all_files[:-1], all_files[1:]):
 
@@ -37,24 +38,26 @@ def populate(*ags, **kwargs):
                 list(df['Participant ID'].values) + list(yesterday_df['Participant ID'].values)
             ):
 
-                diff, diff_percentage = _get_diff_values(
+                participant_dict_of_info = _get_diff_values(
                     df,
                     yesterday_df,
                     participant_id
                 )
 
-                row_dict = df[df['Participant ID'] == participant_id].to_dict('records')[0]
-
                 ShareholdingInfo.objects.get_or_create(
-                    participant = Participant.objects.get_or_create(id = row_dict['Participant ID'])[0] ,
-                    name = row_dict['Name'],
-                    address = row_dict['Address'],
-                    percentage = row_dict['percentage'],
-                    shareholding = row_dict['Shareholding'],
-                    date = row_dict['Date'],
-                    stock = Stock.objects.get_or_create(id = row_dict['Stockcode'])[0],
-                    absolute_difference = diff,
-                    difference_percentage = diff_percentage,
+                    participant = Participant.objects.get_or_create(
+                        id = participant_dict_of_info['Participant ID']
+                        )[0],
+                    name = participant_dict_of_info['Name'],
+                    address = participant_dict_of_info['Address'],
+                    percentage = participant_dict_of_info['percentage'],
+                    shareholding = participant_dict_of_info['Shareholding'],
+                    date = participant_dict_of_info['Date'],
+                    stock = Stock.objects.get_or_create(
+                        id = participant_dict_of_info['Stockcode']
+                        )[0],
+                    absolute_difference = participant_dict_of_info['absolute_difference'],
+                    difference_percentage = participant_dict_of_info['difference_percentage'],
                 )
 
 class Migration(migrations.Migration):
@@ -95,23 +98,35 @@ def _generate_id(name):
 
 def _get_diff_values(today_df, yesterday_df, participant_id):
 
-    today_shares = today_df[(today_df['Participant ID'] == participant_id)]['Shareholding'].values
-    yesterday_shares = yesterday_df[(yesterday_df['Participant ID'] == participant_id)]['Shareholding'].values
+    today_dict = today_df[(today_df['Participant ID'] == participant_id)].to_dict('records')
+    yesterday_dict = yesterday_df[(yesterday_df['Participant ID'] == participant_id)].to_dict('records')
 
-    if len(today_shares) == 1 and len(yesterday_shares) == 1:
-        diff = today_shares[0] - yesterday_shares[0]
-        diff_percentage = (today_shares[0] - yesterday_shares[0])/yesterday_shares[0]
+    if len(today_dict) == 1 and len(yesterday_dict) == 1:
+        today_dict = today_dict[0]
+        yesterday_dict = yesterday_dict[0]
+        today_dict['absolute_difference'] = \
+            today_dict['Shareholding'] - yesterday_dict['Shareholding']
+        today_dict['difference_percentage'] = \
+            today_dict['absolute_difference'] / yesterday_dict['Shareholding'] * 100
 
-    elif len(today_shares) == 0 and len(yesterday_shares) == 1:
-        diff = -yesterday_shares[0]
-        diff_percentage = -100
+        return today_dict
 
-    elif len(today_shares) == 1 and len(yesterday_shares) == 0:
-        diff = today_shares[0]
-        diff_percentage = 100
+    elif len(today_dict) == 1 and len(yesterday_dict) == 0:
+        today_dict = today_dict[0]
+        today_dict['absolute_difference'] = today_dict['Shareholding']
+        today_dict['difference_percentage'] = 100
+
+        return today_dict
+
+    elif len(today_dict) == 0 and len(yesterday_dict) == 1:
+        yesterday_dict = yesterday_dict[0]
+        yesterday_dict['absolute_difference'] = -yesterday_dict['Shareholding']
+        yesterday_dict['difference_percentage'] = -100
+
+        return yesterday_dict
 
     else:
-        print (yesterday_shares, today_shares, participant_id)
+        print (participant_id)
+        print (yesterday_dict)
+        print (today_dict)
         raise ValueError ("Something happened")
-    
-    return diff, diff_percentage

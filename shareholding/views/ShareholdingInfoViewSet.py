@@ -16,17 +16,8 @@ class ShareholdingInfoViewSet(viewsets.ModelViewSet):
         date = self.request.query_params.get("date")
         queryset = self.queryset
 
-        if stock:
-            date = datetime.strptime(date, "%Y-%m-%d")
-            query_set = queryset.filter(stock=stock).filter(date=date)
-        
-        elif date:
-            date = datetime.strptime(date, "%Y-%m-%d")
-            query_set = queryset.filter(date=date)
-
-        elif stock and date:
-            date = datetime.strptime(date, "%Y-%m-%d")
-            query_set = queryset.filter(stock=stock).filter(date=date)
+        date = datetime.strptime(date, "%Y-%m-%d")
+        query_set = queryset.filter(stock=stock).filter(date=date)
 
         return query_set
         

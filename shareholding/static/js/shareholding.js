@@ -1,7 +1,5 @@
 function switchframe(tab) {
 
-    console.log(tab)
-
     if (tab === 'tasks'){
         document.querySelector(".active").classList.remove("active");
         document.getElementById("tasks_tab").classList.add("active");
@@ -13,6 +11,5 @@ function switchframe(tab) {
 
     } else if (tab === 'transaction'){
         transaction_tab()
-
     }
  }
