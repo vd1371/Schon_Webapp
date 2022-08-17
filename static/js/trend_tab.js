@@ -56,8 +56,10 @@ async function send_request_for_trend_tab () {
 
     fetch(url)
         .then((res) => res.json())
-        .then((responseData) => submit_handler_trend(responseData)
-      )
+        .then((responseData) => submit_handler_trend(responseData))
+        .catch((error) => {
+            console.log(error)
+        })
     ;
 
 }

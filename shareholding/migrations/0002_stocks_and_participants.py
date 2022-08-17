@@ -10,7 +10,7 @@ from ..models import ShareholdingInfo
 
 def populate(*ags, **kwargs):
 
-    base_dir = os.path.join('shareholding', 'migrations')
+    base_dir = os.path.join('media')
 
     direc = os.path.join(base_dir, 'ListofStocks.csv')
     stock_df = pd.read_csv(direc, index_col = 0, dtype = str)
